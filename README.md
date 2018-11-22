@@ -1,7 +1,8 @@
 # Fmcsa
 
-**TODO: Add description**
-
+Web scraper for fmcsa.dot.gov.
+-
+######Federal Motor Carrier Safety Administration
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
