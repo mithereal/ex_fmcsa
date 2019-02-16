@@ -43,8 +43,8 @@ defmodule Fmcsa do
     end)
 
        case(companies)do
-       c = Enum.reject(companies, &is_nil/1)
-       [companies] -> %{:ok, c}
+       [companies] -> c = Enum.reject(companies, &is_nil/1)
+       %{:ok, c}
        %{:error, content} -> %{:error, content}
        _ -> %{:error, "an error occurred"}
        end
@@ -65,7 +65,7 @@ def marshall_profile(%{:error, data}) do
     _ -> %{:error, "unable to extract profile content"}
     end
 
-    case( main_res = %{:error} || alt_res = %{:error} ) do
+    case( main_res = %{:error, _} || alt_res = %{:error,_} ) do
     true -> %{:error, {main_res, alt_res}}
     false -> profile = %{}
               %{:ok, profile}
@@ -227,8 +227,13 @@ def marshall_profile(%{:error, data}) do
 
  end
 
- def fetch_company_profile({_,url}) do
-      fetch_company_profile(url)
+ def fetch_company_profile({company,url}) do
+      response = fetch_company_profile(url)
+
+      case(response) do
+      %{:ok, data} -> %{:ok, {company,data}}
+      %{:error, data} -> %{:error, {company,data}}
+      end
  end
 
 end
