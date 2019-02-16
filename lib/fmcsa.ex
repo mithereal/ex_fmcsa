@@ -227,4 +227,8 @@ def marshall_profile(%{:error, data}) do
 
  end
 
+ def fetch_company_profile({_,url}) do
+      fetch_company_profile(url)
+ end
+
 end

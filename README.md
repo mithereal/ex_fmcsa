@@ -5,6 +5,15 @@ Web scraper for fmcsa.dot.gov.
 ######Federal Motor Carrier Safety Administration
 ## Installation
 
+
+
+ex. response = Fmcsa.Fmcsa.fetch_companies_by_state("AZ")
+company = List.first(response)
+
+company
+|> Fmcsa.fetch_company_profile()
+
+
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 by adding `fmcsa` to your list of dependencies in `mix.exs`:
 
