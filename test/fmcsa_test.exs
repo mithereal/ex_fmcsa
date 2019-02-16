@@ -7,9 +7,4 @@ defmodule FmcsaTest do
     assert Enum.count(response) != 0
   end
 
-  test "Fetch Company Data" do
-    response = Fmcsa.fetch_companies_by_state("AZ")
-{_,url} = List.first(response)
-    assert Enum.count(Fmcsa.fetch_company_profile(url)) != 0
-  end
 end
