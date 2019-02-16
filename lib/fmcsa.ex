@@ -18,16 +18,7 @@ defmodule Fmcsa do
 
  c = Floki.find(result, "td.MiddleTDFMCSA")
 
- companies = Enum.map(c, fn x ->
- name = case(x)do
-   {_,_,[{_,[{_,url}],[name]},_]} -> {name, url}
-   {_, _, [city_state]} -> nil
-
- end
-                      name
-                       end)
-
-Enum.reject(companies, &is_nil/1)
+ companies = marshall_companies(c)
 
  end
 
@@ -37,8 +28,48 @@ Enum.reject(companies, &is_nil/1)
  end)
  end
 
+  def marshall_companies(%{:error, data}) do
+    %{:error, data}
+  end
+
+ def marshall_companies(response) do
+    companies = Enum.map(response, fn x ->
+      name = case(x)do
+        {_,_,[{_,[{_,url}],[name]},_]} -> {name, url}
+        {_, _, [city_state]} -> nil
+        _ -> %{:error, "unable to extract page content"}
+      end
+      name
+    end)
+
+       case(companies)do
+       c = Enum.reject(companies, &is_nil/1)
+       [companies] -> %{:ok, c}
+       %{:error, content} -> %{:error, content}
+       _ -> %{:error, "an error occurred"}
+       end
+ end
+
+def marshall_profile(%{:error, data}) do
+ %{:error, data}
+ end
+
  def marshall_profile(response) do
     {main,alt} = response
+
+    main_res = case(main) do
+    _ -> %{:error,"unable to extract profile content"}
+    end
+
+    alt_res = case(alt) do
+    _ -> %{:error, "unable to extract profile content"}
+    end
+
+    case( main_res = %{:error} || alt_res = %{:error} ) do
+    true -> %{:error, {main_res, alt_res}}
+    false -> profile = %{}
+              %{:ok, profile}
+    end
 
     #    [
     #      {"tr", [{"class", "MiddleTDFMCSA"}],
@@ -185,7 +216,6 @@ Enum.reject(companies, &is_nil/1)
       #"safety_rating" => safety_rating
       #}
 
- main
  end
 
  def fetch_company_profile(url) do
