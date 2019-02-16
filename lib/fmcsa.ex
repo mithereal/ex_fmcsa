@@ -37,154 +37,163 @@ Enum.reject(companies, &is_nil/1)
  end)
  end
 
+ def marshall_profile(response) do
+    {main,alt} = response
+
+    #    [
+    #      {"tr", [{"class", "MiddleTDFMCSA"}],
+    #        [
+    #          {"td", [_], ["USDOT Number"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_], [usdot_number]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleTDFMCSA"}],
+    #        [
+    #          {"td", [_], ["Address"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_],
+    #            [
+    #              address,
+    #              {"br", [], []},
+    #              city_state_zip
+    #            ]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleTDFMCSA"}],
+    #        [
+    #          {"td", [_], ["Telephone"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_], [phone_number]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleTDFMCSA"}],
+    #        [
+    #          {"td", [_], ["Review Date"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_], [review_date]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleTDFMCSA"}],
+    #        [
+    #          {"td", [_],
+    #            ["Licensing & Insurance Status"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_],
+    #            [
+    #              {"a",
+    #                [
+    #                  {"href",
+    #                    insurance_data_url},
+    #                  {"target", "_blank"}
+    #                ], ["Insurance Data"]}
+    #            ]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleTDFMCSA"}],
+    #        [
+    #          {"td", [_],
+    #            ["Number of Tractors"]},
+    #          {"td", [_], [":"]},
+    #          {"td", [], [number_of_tractors]}
+    #        ]}
+    #    ] = main
+
+
+
+    #    [
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [
+    #          {"td", [_], ["Name"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_],
+    #            [name]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [
+    #          {"td", [_], ["MC #"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_], [motor_carrage_number]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [
+    #          {"td", [_], ["Mailing Address"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_],
+    #            [
+    #              mailing_address,
+    #              {"br", [], []},
+    #              mailing_address_city_state_zip
+    #            ]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [
+    #          {"td", [_], ["Fax"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_], [fax_number]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [
+    #          {"td", [_],
+    #            ["Safety Rating"]},
+    #          {"td", [], [":"]},
+    #          {"td", [_],
+    #            [{"span", [_], [safety_rating]}]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [
+    #          {"td", [_],
+    #            [
+    #              "Most recent ",
+    #              {"a",
+    #                [
+    #                  {"href",
+    #                    safety_rating_url},
+    #                  {"target", "_blank"}
+    #                ], ["Safety Rating Data"]}
+    #            ]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [{"td", [_], []}]},
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [
+    #          {"td", [_],
+    #            [_]},
+    #          {"td", [_], [":"]},
+    #          {"td", [], [number_of_trucks]}
+    #        ]},
+    #      {"tr", [{"class", "MiddleAltTDFMCSA"}],
+    #        [
+    #          {"td", [_],
+    #            [_]},
+    #          {"td", [_], [":"]},
+    #          {"td", [], [number_of_trailers]}
+    #        ]}
+    #    ] = alt
+
+      # %{
+      #"name" => name,
+      #"usdot_number" => usdot_number,
+      #"motor_carrage_number" => motor_carrage_number,
+      #"address" => address,
+      #"city_state_zip" => city_state_zip,
+      #"mailing_address" => mailing_address,
+      #"mailing_address_city_state_zip" => mailing_address_city_state_zip,
+      #"phone_number" => phone_number,
+      #"fax_number" => fax_number,
+      #"review_date" => review_date,
+      #"insurance_data_url" => insurance_data_url,
+      #"number_of_tractors" => number_of_tractors,
+      #"number_of_trailers" => number_of_trailers,
+      #"number_of_trucks" => number_of_trucks,
+      #"safety_rating_url" => safety_rating_url,
+      #"safety_rating" => safety_rating
+      #}
+
+ main
+ end
+
  def fetch_company_profile(url) do
     response = HTTPotion.get(@primary_url <> url)
     html = response.body
-    result = Floki.find(html, "tr.MiddleTDFMCSA")
-    result2 = Floki.find(html, "tr.MiddleAltTDFMCSA")
-
-    [
-      {"tr", [{"class", "MiddleTDFMCSA"}],
-        [
-          {"td", [{"style", "white-space:nowrap"}], ["USDOT Number"]},
-          {"td", [], [":"]},
-          {"td", [{"nowrap", "nowrap"}, {"width", "98%"}], [usdot_number]}
-        ]},
-      {"tr", [{"class", "MiddleTDFMCSA"}],
-        [
-          {"td", [{"style", "white-space:nowrap"}, {"valign", "top"}], ["Address"]},
-          {"td", [], [":"]},
-          {"td", [{"width", "98%"}],
-            [
-              address,
-              {"br", [], []},
-              city_state_zip
-            ]}
-        ]},
-      {"tr", [{"class", "MiddleTDFMCSA"}],
-        [
-          {"td", [{"style", "white-space:nowrap"}, {"valign", "top"}], ["Telephone"]},
-          {"td", [], [":"]},
-          {"td", [{"width", "98%"}], [phone_number]}
-        ]},
-      {"tr", [{"class", "MiddleTDFMCSA"}],
-        [
-          {"td", [{"width", "1%"}, {"style", "white-space:nowrap"}], ["Review Date"]},
-          {"td", [], [":"]},
-          {"td", [{"nowrap", "nowrap"}], [review_date]}
-        ]},
-      {"tr", [{"class", "MiddleTDFMCSA"}],
-        [
-          {"td", [{"width", "1%"}, {"style", "white-space:nowrap"}],
-            ["Licensing & Insurance Status"]},
-          {"td", [], [":"]},
-          {"td", [{"nowrap", "nowrap"}],
-            [
-              {"a",
-                [
-                  {"href",
-                    insurance_data_url},
-                  {"target", "_blank"}
-                ], ["Insurance Data"]}
-            ]}
-        ]},
-      {"tr", [{"class", "MiddleTDFMCSA"}],
-        [
-          {"td", [{"width", "1%"}, {"style", "white-space:nowrap"}],
-            ["Number of Tractors"]},
-          {"td", [{"width", "1%"}], [":"]},
-          {"td", [], [number_of_tractors]}
-        ]}
-    ] = result
-
-    [
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [
-          {"td", [{"style", "white-space:nowrap"}], ["Name"]},
-          {"td", [], [":"]},
-          {"td", [{"style", "white-space:wrap"}, {"width", "98%"}],
-            [name]}
-        ]},
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [
-          {"td", [{"style", "white-space:nowrap"}], ["MC #"]},
-          {"td", [], [":"]},
-          {"td", [{"nowrap", "nowrap"}, {"width", "98%"}], [motor_carrage_number]}
-        ]},
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [
-          {"td", [{"style", "white-space:nowrap"}], ["Mailing Address"]},
-          {"td", [], [":"]},
-          {"td", [{"nowrap", "nowrap"}, {"valign", "top"}, {"width", "98%"}],
-            [
-              mailing_address,
-              {"br", [], []},
-              mailing_address_city_state_zip
-            ]}
-        ]},
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [
-          {"td", [{"style", "white-space:nowrap"}], ["Fax"]},
-          {"td", [], [":"]},
-          {"td", [{"width", "98%"}], [fax_number]}
-        ]},
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [
-          {"td", [{"width", "1%"}, {"style", "white-space:nowrap"}],
-            ["Safety Rating"]},
-          {"td", [], [":"]},
-          {"td", [{"nowrap", "nowrap"}],
-            [{"span", [{"class", "b"}], [safety_rating]}]}
-        ]},
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [
-          {"td", [{"style", "white-space:nowrap"}, {"colspan", "3"}],
-            [
-              "Most recent ",
-              {"a",
-                [
-                  {"href",
-                    safety_rating_url},
-                  {"target", "_blank"}
-                ], ["Safety Rating Data"]}
-            ]}
-        ]},
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [{"td", [{"style", "white-space:nowrap"}, {"colspan", "3"}], []}]},
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [
-          {"td", [{"width", "1%"}, {"style", "white-space:nowrap"}],
-            [_]},
-          {"td", [{"width", "1%"}], [":"]},
-          {"td", [], [number_of_trucks]}
-        ]},
-      {"tr", [{"class", "MiddleAltTDFMCSA"}],
-        [
-          {"td", [{"width", "1%"}, {"style", "white-space:nowrap"}],
-            [_]},
-          {"td", [{"width", "1%"}], [":"]},
-          {"td", [], [number_of_trailers]}
-        ]}
-    ] = result2
-
- %{
-"name" => name,
-"usdot_number" => usdot_number,
-"motor_carrage_number" => motor_carrage_number,
-"address" => address,
-"city_state_zip" => city_state_zip,
-"mailing_address" => mailing_address,
-"mailing_address_city_state_zip" => mailing_address_city_state_zip,
-"phone_number" => phone_number,
-"fax_number" => fax_number,
-"review_date" => review_date,
-"insurance_data_url" => insurance_data_url,
-"number_of_tractors" => number_of_tractors,
-"number_of_trailers" => number_of_trailers,
-"number_of_trucks" => number_of_trucks,
-"safety_rating_url" => safety_rating_url,
-"safety_rating" => safety_rating
-}
+    main = Floki.find(html, "tr.MiddleTDFMCSA")
+    alt = Floki.find(html, "tr.MiddleAltTDFMCSA")
+    marshall_profile({main,alt})
 
  end
 
