@@ -3,7 +3,7 @@ defmodule FmcsaTest do
   doctest Fmcsa
 
   test "Fetch Companies By State" do
-    response = Fmcsa.fetch_companies_by_state("AZ")
+    {_,response} = Fmcsa.fetch_companies_by_state("AZ")
     assert Enum.count(response) != 0
   end
 end
