@@ -23,9 +23,12 @@ defmodule Marshall do
         {:error, "unable to extract profile content"}
       end
 
+   {main_status,_} =  main_res
+   {alt_status,_} =  alt_res
+
     error = true
 
-    case(error)
+    case(error) do
     true ->
         {:error, {main_res, alt_res}}
 
@@ -176,7 +179,7 @@ defmodule Marshall do
     # "safety_rating_url" => safety_rating_url,
     # "safety_rating" => safety_rating
     # }
-  end
+end
 
   def companies({:error, data}) do
     {:error, data}
@@ -196,15 +199,9 @@ defmodule Marshall do
       end)
 
     case(companies) do
-      [companies] ->
-        c = Enum.reject(companies, &is_nil/1)
-        {:ok, c}
-
-      {:error, content} ->
-        {:error, content}
-
-      _ ->
-        {:error, "an error occurred"}
+    {:error, content} -> {:error, content}
+    _ -> c = Enum.reject(companies, &is_nil/1)
+    {:ok, c}
     end
   end
 end
