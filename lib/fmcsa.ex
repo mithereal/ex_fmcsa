@@ -129,11 +129,13 @@ defmodule Fmcsa do
 
         _ ->
           {_, response} = Fmcsa.fetch_companies_by_state(state)
+          {_, url} = response
+          Fmcsa.fetch_company_profile(url)
 
-          Enum.map(response, fn x ->
-            Fmcsa.Company.Supervisor.start(x)
-            Fmcsa.Company.Server.show_profile(x)
-          end)
+#          Enum.map(response, fn x ->
+#            Fmcsa.Company.Supervisor.start(x)
+#            Fmcsa.Company.Server.show_profile(x)
+#          end)
       end
 
     {:ok, response}
