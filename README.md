@@ -4,7 +4,7 @@ Web scraper for fmcsa.dot.gov.
 -
 ######Federal Motor Carrier Safety Administration
 this tool was created to fetch public information related to registered motor carriers in the united states 
-responses are tuples in order to facilitate error handeling of data marshalls
+
 ## Installation
 
 

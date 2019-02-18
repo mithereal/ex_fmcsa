@@ -4,7 +4,6 @@ defmodule Marshall do
   """
 
   def fetch(data) do
-     IO.inspect(data, label: "test")
 
     case(data) do
       [{"td", [{"style", "white-space:nowrap"}], ["USDOT Number"]}, {"td", [], [":"]}, _] ->

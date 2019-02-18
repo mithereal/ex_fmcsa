@@ -63,6 +63,9 @@ defmodule Fmcsa do
   ]
 
   def fetch_companies_by_state(state) do
+
+  IO.puts "Fetching companies for " <> state
+
     response = HTTPotion.get(@search_url <> state)
 
     html = response.body
@@ -91,6 +94,9 @@ defmodule Fmcsa do
   end
 
   def fetch_company_profile({company, url}) do
+
+  IO.puts "Fetching " <> company <> " profile"
+
     response = fetch_company_profile(url)
 
     case(response) do
