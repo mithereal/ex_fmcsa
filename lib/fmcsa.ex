@@ -91,6 +91,7 @@ defmodule Fmcsa do
     main = Floki.find(html, "tr.MiddleTDFMCSA")
     alt = Floki.find(html, "tr.MiddleAltTDFMCSA")
     Marshall.profile({main, alt})
+    ## sleep upto 5 seconds so fcma server can calm down and not timeout
     time = :rand.uniform(5000)
     :timer.sleep(time)
   end
@@ -121,21 +122,45 @@ defmodule Fmcsa do
       case(state) do
         "ALL" ->
           companies = Fmcsa.fetch_company_names()
+           count = Enum.count companies
 
-          Enum.map(companies, fn x ->
+          [:springgreen, "Found " <> Integer.to_string(count) <> " companies"]
+          |> Bunt.puts()
+
+          profiles = Enum.map(companies, fn x ->
             {_, url} = x
             Fmcsa.fetch_company_profile(url)
           end)
 
+          count = Enum.count profiles
+
+          [:springgreen, "Fetched " <> Integer.to_string(count) <> " profiles"]
+          |> Bunt.puts()
+
         _ ->
           {_, response} = Fmcsa.fetch_companies_by_state(state)
-          {_, url} = response
-          Fmcsa.fetch_company_profile(url)
 
-#          Enum.map(response, fn x ->
-#            Fmcsa.Company.Supervisor.start(x)
-#            Fmcsa.Company.Server.show_profile(x)
-#          end)
+          count = Enum.count response
+
+          [:springgreen, "Found " <> Integer.to_string(count) <> " companies"]
+          |> Bunt.puts()
+
+         profiles =  Enum.map(response, fn x ->
+            {company, url} = x
+            [:springgreen, "Fetching " <> company <> " profile"]
+            |> Bunt.puts()
+            Fmcsa.fetch_company_profile(url)
+          end)
+
+          count = Enum.count profiles
+
+          [:springgreen, "Fetched " <> Integer.to_string(count) <> " profiles"]
+          |> Bunt.puts()
+
+          #          Enum.map(response, fn x ->
+          #            Fmcsa.Company.Supervisor.start(x)
+          #            Fmcsa.Company.Server.show_profile(x)
+          #          end)
       end
 
     {:ok, response}
