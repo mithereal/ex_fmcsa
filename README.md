@@ -9,10 +9,10 @@ this tool was created to fetch public information related to registered motor ca
 
 
 
-ex. iex:> response = Fmcsa.Fmcsa.fetch_companies_by_state("AZ")
-company = List.first(response)
+ex. iex:> {_,response }= Fmcsa.fetch_companies_by_state("AZ")
+{company, url} = List.first(response)
 
-company
+url
 |> Fmcsa.fetch_company_profile()
 
 {:ok, %{...}} 

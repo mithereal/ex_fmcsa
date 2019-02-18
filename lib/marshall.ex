@@ -4,7 +4,6 @@ defmodule Marshall do
   """
 
   def fetch(data) do
-
     case(data) do
       [{"td", [{"style", "white-space:nowrap"}], ["USDOT Number"]}, {"td", [], [":"]}, _] ->
         fetch_dot(data)
@@ -115,7 +114,6 @@ defmodule Marshall do
   end
 
   def fetch_mc(data) do
-
     result =
       case(data) do
         [
@@ -155,27 +153,35 @@ defmodule Marshall do
 
           {"td", _, address_list} = el
 
-          [
-            address,
-            {"br", [], []},
-            city
-          ] = address_list
+          count = Enum.count(address_list)
 
-          address =
-            address
-            |> String.replace("\r", "")
-            |> String.replace("\n", "")
-            |> String.replace("\t", "")
-            |> String.trim()
+          case(count) do
+            0 ->
+              [
+                address,
+                {"br", [], []},
+                city
+              ] = address_list
 
-          city =
-            city
-            |> String.replace("\r", "")
-            |> String.replace("\n", "")
-            |> String.replace("\t", "")
-            |> String.trim()
+              address =
+                address
+                |> String.replace("\r", "")
+                |> String.replace("\n", "")
+                |> String.replace("\t", "")
+                |> String.trim()
 
-          {address, city}
+              city =
+                city
+                |> String.replace("\r", "")
+                |> String.replace("\n", "")
+                |> String.replace("\t", "")
+                |> String.trim()
+
+              {address, city}
+
+            _ ->
+              {"", ""}
+          end
       end
 
     {"Mailing Address", result}
@@ -401,26 +407,50 @@ defmodule Marshall do
       {"Number of Tractors", tractors}
     ] = main_data
 
-    [
-      {"Name", name},
-      {"MC", mc},
-      {"Mailing Address", mailing_address},
-      {"Fax", fax},
-      {"Number of Trucks", trucks},
-      {"Number of Trailers", trailers}
-    ] = alt_data
-
     profile = Map.put(profile, :dot, dot)
     profile = Map.put(profile, :address, address)
     profile = Map.put(profile, :phone, phone)
     profile = Map.put(profile, :number_of_tractors, tractors)
 
-    profile = Map.put(profile, :name, name)
-    profile = Map.put(profile, :mc, mc)
-    profile = Map.put(profile, :mailing_address, mailing_address)
-    profile = Map.put(profile, :fax, fax)
-    profile = Map.put(profile, :number_of_trucks, trucks)
-    profile = Map.put(profile, :number_of_trailers, trailers)
+    count = Enum.count(alt_data)
+
+    profile =
+      case(count) do
+        5 ->
+          [
+            {"Name", name},
+            {"Mailing Address", mailing_address},
+            {"Fax", fax},
+            {"Number of Trucks", trucks},
+            {"Number of Trailers", trailers}
+          ] = alt_data
+
+          profile = Map.put(profile, :name, name)
+          profile = Map.put(profile, :mc, "")
+          profile = Map.put(profile, :mailing_address, mailing_address)
+          profile = Map.put(profile, :fax, fax)
+          profile = Map.put(profile, :number_of_trucks, trucks)
+          profile = Map.put(profile, :number_of_trailers, trailers)
+          profile
+
+        6 ->
+          [
+            {"Name", name},
+            {"MC", mc},
+            {"Mailing Address", mailing_address},
+            {"Fax", fax},
+            {"Number of Trucks", trucks},
+            {"Number of Trailers", trailers}
+          ] = alt_data
+
+          profile = Map.put(profile, :name, name)
+          profile = Map.put(profile, :mc, mc)
+          profile = Map.put(profile, :mailing_address, mailing_address)
+          profile = Map.put(profile, :fax, fax)
+          profile = Map.put(profile, :number_of_trucks, trucks)
+          profile = Map.put(profile, :number_of_trailers, trailers)
+          profile
+      end
 
     main_res =
       case(Enum.count(main_data) > 0) do
@@ -463,8 +493,11 @@ defmodule Marshall do
       Enum.map(response, fn x ->
         name =
           case(x) do
-            {_, _, [{_, [{_, url}], [name]}, _]} -> {name, url}
-            _ -> {:error, "unable to extract page content"}
+            {_, _, [{_, [{_, url}], [name]}, _]} ->
+              {name, url}
+
+            _ ->
+              {:error, "unable to extract page content"}
           end
 
         name
@@ -478,5 +511,28 @@ defmodule Marshall do
         c = Enum.reject(companies, &is_nil/1)
         {:ok, c}
     end
+  end
+
+  def company_names(response) do
+    companies =
+      Enum.map(response, fn x ->
+        name =
+          case(x) do
+            {_, _, [{_, [{_, url}], [name]}, _]} ->
+              {name, url}
+
+            _ ->
+              nil
+          end
+
+        name
+      end)
+
+    c = Enum.reject(companies, &is_nil/1)
+    {:ok, c}
+  end
+
+  def json(data) do
+    data
   end
 end

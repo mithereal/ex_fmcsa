@@ -63,8 +63,8 @@ defmodule Fmcsa do
   ]
 
   def fetch_companies_by_state(state) do
-
-  IO.puts "Fetching companies for " <> state
+    [:springgreen, "Fetching companies for " <> state]
+    |> Bunt.puts()
 
     response = HTTPotion.get(@search_url <> state)
 
@@ -74,13 +74,14 @@ defmodule Fmcsa do
 
     c = Floki.find(result, "td.MiddleTDFMCSA")
 
-    companies = Marshall.companies(c)
+    Marshall.company_names(c)
   end
 
   def fetch_company_names do
     names =
       Enum.map(@states, fn state ->
-        fetch_companies_by_state(state)
+        {_, companies} = fetch_companies_by_state(state)
+        companies
       end)
   end
 
@@ -89,13 +90,23 @@ defmodule Fmcsa do
     html = response.body
     main = Floki.find(html, "tr.MiddleTDFMCSA")
     alt = Floki.find(html, "tr.MiddleAltTDFMCSA")
-    profile = Marshall.profile({main, alt})
-    #  IO.inspect  profile
+    Marshall.profile({main, alt})
+    time = :rand.uniform(5000)
+    :timer.sleep(time)
+  end
+
+  def fetch_company_profile!(url) do
+    response = HTTPotion.get(@primary_url <> url)
+    html = response.body
+    main = Floki.find(html, "tr.MiddleTDFMCSA")
+    alt = Floki.find(html, "tr.MiddleAltTDFMCSA")
+    {_, profile} = Marshall.profile({main, alt})
+    profile
   end
 
   def fetch_company_profile({company, url}) do
-
-  IO.puts "Fetching " <> company <> " profile"
+    [:springgreen, "Fetching " <> company <> " profile"]
+    |> Bunt.puts()
 
     response = fetch_company_profile(url)
 
@@ -103,5 +114,25 @@ defmodule Fmcsa do
       {:ok, data} -> {:ok, {company, data}}
       {:error, data} -> {:error, {company, data}}
     end
+  end
+
+  def all(state \\ "ALL") do
+
+    response = case(state) do
+    _ -> {_, response} = Fmcsa.fetch_companies_by_state(state)
+    Enum.map(response, fn x ->
+               Fmcsa.Company.Supervisor.start(x)
+               profile = Fmcsa.Company.Server.show_profile(x)
+               profile
+             end)
+    end
+
+
+
+    {:ok, response}
+  end
+
+  def output(data) do
+    Marshall.json(data)
   end
 end
