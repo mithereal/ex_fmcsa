@@ -119,6 +119,7 @@ defmodule Fmcsa do
   def all(state \\ "ALL") do
 
     response = case(state) do
+    "ALL" -> []
     _ -> {_, response} = Fmcsa.fetch_companies_by_state(state)
     Enum.map(response, fn x ->
                Fmcsa.Company.Supervisor.start(x)
