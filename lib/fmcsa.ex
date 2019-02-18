@@ -117,23 +117,25 @@ defmodule Fmcsa do
   end
 
   def all(state \\ "ALL") do
+    response =
+      case(state) do
+        "ALL" ->
+          companies = Fmcsa.fetch_company_names()
 
-    response = case(state) do
-    "ALL" -> []
-    _ -> {_, response} = Fmcsa.fetch_companies_by_state(state)
-    Enum.map(response, fn x ->
-               Fmcsa.Company.Supervisor.start(x)
-               profile = Fmcsa.Company.Server.show_profile(x)
-               profile
-             end)
-    end
+          Enum.map(companies, fn x ->
+            {_, url} = x
+            Fmcsa.fetch_company_profile(url)
+          end)
 
+        _ ->
+          {_, response} = Fmcsa.fetch_companies_by_state(state)
 
+          Enum.map(response, fn x ->
+            Fmcsa.Company.Supervisor.start(x)
+            Fmcsa.Company.Server.show_profile(x)
+          end)
+      end
 
     {:ok, response}
-  end
-
-  def output(data) do
-    Marshall.json(data)
   end
 end
