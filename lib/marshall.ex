@@ -3,6 +3,76 @@ defmodule Marshall do
   data marshalls.
   """
 
+  def fetch(data) do
+
+    case(data) do
+      [{"td", [{"style", "white-space:nowrap"}], ["USDOT Number"]}, {"td", [], [":"]}, _] ->
+        {:ok, fetch_dot(data)}
+
+      [
+        {"td", [{"style", "white-space:nowrap"}, {"valign", "top"}], ["Address"]},
+        {"td", [], [":"]},
+        _
+      ] ->
+        {:ok, fetch_address(data)}
+
+      _ ->
+        {:error, "unable to extract content"}
+    end
+  end
+
+  def fetch_dot(data) do
+    dot =
+      case(data) do
+        [{"td", [{"style", "white-space:nowrap"}], ["USDOT Number"]}, {"td", [], [":"]}, _] ->
+          [{"td", [{"style", "white-space:nowrap"}], ["USDOT Number"]}, {"td", [], [":"]}, el] =
+            data
+
+          {"td", [{"nowrap", "nowrap"}, {"width", "98%"}], [dot]} = el
+          dot
+
+        _ ->
+          ""
+      end
+
+    {"USDOT Number", dot}
+  end
+
+  def fetch_address(data) do
+    result =
+      case(data) do
+        [
+          {"td", [{"style", "white-space:nowrap"}, {"valign", "top"}], ["Address"]},
+          {"td", [], [":"]},
+          _
+        ] ->
+          [
+            {"td", [{"style", "white-space:nowrap"}, {"valign", "top"}], ["Address"]},
+            {"td", [], [":"]},
+            el
+          ] =
+            data
+
+          {"td", [{"width", "98%"}],
+            address_list } = el
+
+          [
+            address,
+            {"br", [], []},
+            city
+          ] = address_list
+
+          address = address |> String.replace("\r", "") |> String.replace("\n", "") |> String.replace("\t", "") |> String.trim()
+          city = city |> String.replace("\r", "") |> String.replace("\n", "") |> String.replace("\t", "") |> String.trim()
+
+            {address,city}
+        _ ->
+          ""
+      end
+
+    {"Address", result}
+  end
+
   def profile({:error, data}) do
     {:error, data}
   end
@@ -10,29 +80,38 @@ defmodule Marshall do
   def profile(response) do
     {main, alt} = response
 
-    main_res =
-      case(main) do
-        _ ->
-        {:error, "unable to extract profile content"}
-      end
+    main_res = {:error, "placeholder"}
+
+    element =
+      Enum.map(main, fn x ->
+        y =
+          case(x) do
+            {"tr", [{"class", "MiddleTDFMCSA"}], _} ->
+              {"tr", [{"class", "MiddleTDFMCSA"}], data} = x
+              fetch(data)
+
+            _ ->
+              {:error, "unable to extract profile content"}
+          end
+      end)
 
 
     alt_res =
       case(alt) do
         _ ->
-        {:error, "unable to extract profile content"}
+          {:error, "unable to extract profile content"}
       end
 
-   {main_status,_} =  main_res
-   {alt_status,_} =  alt_res
+    {main_status, _} = main_res
+    {alt_status, _} = alt_res
 
     error = true
 
     case(error) do
-    true ->
+      true ->
         {:error, {main_res, alt_res}}
 
-     false ->
+      false ->
         profile = %{}
         {:ok, profile}
     end
@@ -179,7 +258,7 @@ defmodule Marshall do
     # "safety_rating_url" => safety_rating_url,
     # "safety_rating" => safety_rating
     # }
-end
+  end
 
   def companies({:error, data}) do
     {:error, data}
@@ -199,9 +278,12 @@ end
       end)
 
     case(companies) do
-    {:error, content} -> {:error, content}
-    _ -> c = Enum.reject(companies, &is_nil/1)
-    {:ok, c}
+      {:error, content} ->
+        {:error, content}
+
+      _ ->
+        c = Enum.reject(companies, &is_nil/1)
+        {:ok, c}
     end
   end
 end
