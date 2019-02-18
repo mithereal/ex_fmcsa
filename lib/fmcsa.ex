@@ -86,7 +86,8 @@ defmodule Fmcsa do
     html = response.body
     main = Floki.find(html, "tr.MiddleTDFMCSA")
     alt = Floki.find(html, "tr.MiddleAltTDFMCSA")
-    Marshall.profile({main, alt})
+    profile = Marshall.profile({main, alt})
+    #  IO.inspect  profile
   end
 
   def fetch_company_profile({company, url}) do
