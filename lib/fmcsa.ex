@@ -62,19 +62,24 @@ defmodule Fmcsa do
     "WY"
   ]
 
+
   def fetch_companies_by_state(state) do
     [:springgreen, "Fetching companies for " <> state]
     |> Bunt.puts()
 
     response = HTTPotion.get(@search_url <> state)
 
-    html = response.body
+    case(HTTPotion.Response.success?(response))do
+  false -> {:error, response.message }
+  true ->  html = response.body
 
-    result = Floki.find(html, "table")
+           result = Floki.find(html, "table")
 
-    c = Floki.find(result, "td.MiddleTDFMCSA")
+           c = Floki.find(result, "td.MiddleTDFMCSA")
 
-    Marshall.company_names(c)
+           Marshall.company_names(c)
+    end
+
   end
 
   def fetch_company_names do
