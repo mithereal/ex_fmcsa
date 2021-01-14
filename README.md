@@ -3,19 +3,30 @@
 Web scraper for fmcsa.dot.gov.
 -
 ######Federal Motor Carrier Safety Administration
-this tool was created to fetch public information related to registered motor carriers in the united states 
+This Tool Was Created To Fetch Public Information Related To Registered Motor Carriers In The United States 
 
 ## Installation
 
 
+iex:> {_,response }= Fmcsa.fetch_companies_by_state("AZ")
+iex:> {company, url} = List.first(response)
 
-ex. iex:> {_,response }= Fmcsa.fetch_companies_by_state("AZ")
-{company, url} = List.first(response)
-
-url
-|> Fmcsa.fetch_company_profile()
+iex:> url |> Fmcsa.fetch_company_profile()
 
 {:ok, %{...}} 
+
+
+daily sync can be done via:
+
+iex:> Fmcsa.all("SYNC")
+{:ok, %{...}}
+
+synced data can be dumped:
+
+iex:> {_,response }= Fmcsa.fetch_companies_by_state("AZ")
+iex:> company_response = List.first(response)
+iex:> Fmcsa.Company.Server(company_response)
+{:ok, %{...}}
 
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
