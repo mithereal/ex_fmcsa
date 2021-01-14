@@ -2,10 +2,11 @@ defmodule Fmcsa.Company.Server do
   require Logger
 
   use GenServer
-  alias Marshall
 
   @name __MODULE__
   @registry_name :company_registry
+  @ten_seconds 10000
+  @one_day 834000
 
   defstruct name: nil,
             profile: nil,
@@ -38,12 +39,22 @@ defmodule Fmcsa.Company.Server do
   def init([args]) do
     {name, url} = args
 
+    Process.send_after(self(), {:sync,url} , @ten_seconds)
+
     {:ok, %__MODULE__{}}
   end
 
+
   def handle_call({:fetch, url}, _from, state) do
-    profile = Marshall.fetch_company_profile(url)
+    profile = Fmcsa.fetch_company_profile(url)
     updated_state = %__MODULE__{state | profile: profile}
     {:reply, profile, updated_state}
+  end
+
+  def handle_info({:sync, url},  state) do
+    profile = Fmcsa.fetch_company_profile(url)
+    updated_state = %__MODULE__{state | profile: profile}
+    Process.send_after(self(), {:sync,url} , @one_day)
+    {:noreply,  updated_state}
   end
 end

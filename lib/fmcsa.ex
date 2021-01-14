@@ -125,7 +125,7 @@ defmodule Fmcsa do
   def all(state \\ "ALL") do
     response =
       case(state) do
-        "STATE" ->
+        "SYNC" ->
           companies = Fmcsa.fetch_company_names()
           count = Enum.count companies
 
