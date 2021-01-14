@@ -125,6 +125,22 @@ defmodule Fmcsa do
   def all(state \\ "ALL") do
     response =
       case(state) do
+        "STATE" ->
+          companies = Fmcsa.fetch_company_names()
+          count = Enum.count companies
+
+          [:springgreen, "Found " <> Integer.to_string(count) <> " companies"]
+          |> Bunt.puts()
+
+                  Enum.map(companies, fn x ->
+                   {_, url} = x
+                    Fmcsa.Company.Supervisor.start(x)
+                   ## sleep upto 5 seconds so fcma server can calm down and not timeout
+                   time = :rand.uniform(5000)
+                   :timer.sleep(time)
+                    Fmcsa.Company.Supervisor.fetch_profile(x)
+                    Fmcsa.Company.Server.show_profile(x)
+                  end)
         "ALL" ->
           companies = Fmcsa.fetch_company_names()
            count = Enum.count companies
@@ -162,10 +178,7 @@ defmodule Fmcsa do
           [:springgreen, "Fetched " <> Integer.to_string(count) <> " profiles"]
           |> Bunt.puts()
 
-          #          Enum.map(response, fn x ->
-          #            Fmcsa.Company.Supervisor.start(x)
-          #            Fmcsa.Company.Server.show_profile(x)
-          #          end)
+
       end
 
     {:ok, response}
