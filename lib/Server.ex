@@ -6,7 +6,7 @@ defmodule Fmcsa.Company.Server do
   @name __MODULE__
   @registry_name :company_registry
   @ten_seconds 10000
-  @one_day 834000
+  @one_day 834_000
 
   defstruct name: nil,
             profile: nil,
@@ -39,11 +39,10 @@ defmodule Fmcsa.Company.Server do
   def init([args]) do
     {name, url} = args
 
-    Process.send_after(self(), {:sync,url} , @ten_seconds)
+    Process.send_after(self(), {:sync, url}, @ten_seconds)
 
     {:ok, %__MODULE__{}}
   end
-
 
   def handle_call({:fetch, url}, _from, state) do
     profile = Fmcsa.fetch_company_profile(url)
@@ -51,10 +50,10 @@ defmodule Fmcsa.Company.Server do
     {:reply, profile, updated_state}
   end
 
-  def handle_info({:sync, url},  state) do
+  def handle_info({:sync, url}, state) do
     profile = Fmcsa.fetch_company_profile(url)
     updated_state = %__MODULE__{state | profile: profile}
-    Process.send_after(self(), {:sync,url} , @one_day)
-    {:noreply,  updated_state}
+    Process.send_after(self(), {:sync, url}, @one_day)
+    {:noreply, updated_state}
   end
 end
