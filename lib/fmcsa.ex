@@ -138,7 +138,7 @@ defmodule Fmcsa do
                    ## sleep upto 5 seconds so fcma server can calm down and not timeout
                    time = :rand.uniform(5000)
                    :timer.sleep(time)
-                    Fmcsa.Company.Supervisor.fetch_profile(x)
+                    Fmcsa.Company.Server.fetch_profile(x)
                     Fmcsa.Company.Server.show_profile(x)
                   end)
         "ALL" ->
