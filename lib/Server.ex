@@ -10,7 +10,7 @@ defmodule Fmcsa.Company.Server do
 
   defstruct name: nil,
             profile: nil,
-            status: "init"
+            last_update: nil
 
   def start_link(data) do
     name = via_tuple(data)
@@ -47,12 +47,14 @@ defmodule Fmcsa.Company.Server do
   def handle_call({:fetch, url}, _from, state) do
     profile = Fmcsa.fetch_company_profile(url)
     updated_state = %__MODULE__{state | profile: profile}
+    updated_state = %{updated_state | last_update:  DateTime.utc_now()}
     {:reply, profile, updated_state}
   end
 
   def handle_info({:sync, url}, state) do
     profile = Fmcsa.fetch_company_profile(url)
     updated_state = %__MODULE__{state | profile: profile}
+    updated_state = %{updated_state | last_update:  DateTime.utc_now()}
     Process.send_after(self(), {:sync, url}, @one_day)
     {:noreply, updated_state}
   end

@@ -25,7 +25,7 @@ synced data can be dumped:
 
 iex:> {_,response }= Fmcsa.fetch_companies_by_state("AZ")
 iex:> company_response = List.first(response)
-iex:> Fmcsa.Company.Server(company_response)
+iex:> Fmcsa.Company.Server.show_profile(company_response)
 {:ok, %{...}}
 
 
