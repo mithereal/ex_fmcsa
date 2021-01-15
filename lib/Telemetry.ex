@@ -8,7 +8,7 @@ defmodule Fmcsa.Telemetry do
   end
 
   def handle_event([:fcmsa, :request, :sync], measurements, metadata, _config) do
-      metadata.last_update
+    {metadata.id, metadata.last_update}
   end
 
 end

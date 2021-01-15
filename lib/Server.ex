@@ -61,6 +61,7 @@ defmodule Fmcsa.Company.Server do
       [:fmcsa, :request, :sync],
       %{time_in_milliseconds: 0},
       %{
+        id: state.name ,
         last_update: state.last_update
       }
     )
