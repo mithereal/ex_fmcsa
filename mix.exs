@@ -32,6 +32,7 @@ defmodule Fmcsa.MixProject do
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
       {:floki, "~> 0.20.0"},
       {:httpotion, "~> 3.1.0"},
+      {:telemetry, "~> 0.4.0"},
       {:bunt, "~> 0.2.0"},
       {:ex_doc, "~> 0.14", only: :dev}
     ]

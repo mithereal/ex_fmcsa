@@ -56,6 +56,14 @@ defmodule Fmcsa.Company.Server do
     updated_state = %__MODULE__{state | profile: profile}
     updated_state = %{updated_state | last_update:  DateTime.utc_now()}
     Process.send_after(self(), {:sync, url}, @one_day)
+
+    :telemetry.execute(
+      [:fmcsa, :request, :sync],
+      %{time_in_milliseconds: 0},
+      %{
+        last_update: state.last_update
+      }
+    )
     {:noreply, updated_state}
   end
 end

@@ -11,9 +11,12 @@ defmodule Fmcsa.Application do
     children = [
       # Starts a worker by calling: Fmcsa.Worker.start_link(arg)
       # {Fmcsa.Worker, arg},
+
       supervisor(Registry, [:unique, :company_registry], id: :company_registry),
       supervisor(Fmcsa.Company.Supervisor, [])
     ]
+
+    Fmcsa.Telemetry.setup()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
