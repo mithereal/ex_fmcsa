@@ -5,7 +5,6 @@
 [![Hex.pm](https://img.shields.io/hexpm/dt/fmcsa.svg)](https://hex.pm/packages/fmcsa)
 [![License](https://img.shields.io/hexpm/l/fmcsa.svg)](https://github.com/mithereal/ex_fmcsa/blob/master/LICENSE)
 [![Last Updated](https://img.shields.io/github/last-commit/mithereal/ex_fmcsa.svg)](https://github.com/mithereal/ex_fmcsa/commits/master)
-[![Build Status](https://circleci.com/gh/mithereal/ex_fmcsa.svg?style=svg)](https://github.com/mithereal/ex_fmcsa)
 
 Web scraper for fmcsa.dot.gov.
 -
