@@ -3,11 +3,10 @@ defmodule Fmcsa do
   Documentation for Fmcsa.
   """
 
+  require Logger
+
   alias Marshall
-
-  @primary_url "https://ai.fmcsa.dot.gov/hhg/"
-
-  @search_url "https://ai.fmcsa.dot.gov/hhg/SearchResults.asp?lan=EN&search=5&ads=a&state="
+  alias Fmcsa.Http
 
   @states [
     "AK",
@@ -63,17 +62,16 @@ defmodule Fmcsa do
   ]
 
   def fetch_companies_by_state(state) do
-    [:springgreen, "Fetching companies for " <> state]
-    |> Bunt.puts()
+    {status, response} = Http.fetch_companies_by_state(state)
 
-    response = HTTPotion.get(@search_url <> state)
-
-    case(HTTPotion.Response.success?(response)) do
-      false ->
+    case(status) do
+      :error ->
         {:error, response.message}
 
-      true ->
+      :ok ->
         html = response.body
+
+    {:ok, html} = Floki.parse_document(html)
 
         result = Floki.find(html, "table")
 
@@ -84,44 +82,48 @@ defmodule Fmcsa do
   end
 
   def fetch_company_names do
-    names =
       Enum.map(@states, fn state ->
         {_, companies} = fetch_companies_by_state(state)
         companies
       end)
   end
 
-  def fetch_company_profile(url) do
-    response = HTTPotion.get(@primary_url <> url)
-    html = response.body
-    main = Floki.find(html, "tr.MiddleTDFMCSA")
-    alt = Floki.find(html, "tr.MiddleAltTDFMCSA")
-    Marshall.profile({main, alt})
-    ## sleep upto 5 seconds so fcma server can calm down and not timeout
+  def fetch_company_profile(url, acc \\ 0) do
+
+      ## sleep upto 5 seconds so fcma server can calm down and not timeout
     time = :rand.uniform(5000)
     :timer.sleep(time)
-  end
+
+    {status, response} = Http.fetch_company_profile(url)
+    case response do
+     :errconnrefused ->
+     if(acc > 5) do
+     time = :rand.uniform(5000)
+    :timer.sleep(time)
+    acc = acc + 1
+    fetch_company_profile(url,acc)
+    end
+    _->
+    html = response.body
+   {:ok, html} = Floki.parse_document(html)
+
+    main = Floki.find(html, "tr.MiddleTDFMCSA")
+    alt = Floki.find(html, "tr.MiddleAltTDFMCSA")
+
+     Marshall.profile({main, alt})
+    end
+    end
 
   def fetch_company_profile!(url) do
-    response = HTTPotion.get(@primary_url <> url)
+    {status, response} = Http.fetch_company_profile(url)
     html = response.body
+    {:ok, html} = Floki.parse_document(html)
     main = Floki.find(html, "tr.MiddleTDFMCSA")
     alt = Floki.find(html, "tr.MiddleAltTDFMCSA")
     {_, profile} = Marshall.profile({main, alt})
     profile
   end
 
-  def fetch_company_profile({company, url}) do
-    [:springgreen, "Fetching " <> company <> " profile"]
-    |> Bunt.puts()
-
-    response = fetch_company_profile(url)
-
-    case(response) do
-      {:ok, data} -> {:ok, {company, data}}
-      {:error, data} -> {:error, {company, data}}
-    end
-  end
 
   def all(state \\ "ALL") do
     response =
@@ -130,8 +132,7 @@ defmodule Fmcsa do
           companies = Fmcsa.fetch_company_names()
           count = Enum.count(companies)
 
-          [:springgreen, "Found " <> Integer.to_string(count) <> " companies"]
-          |> Bunt.puts()
+          Logger.info("Found " <> Integer.to_string(count) <> " companies")
 
           Enum.map(companies, fn x ->
             {_, url} = x
@@ -143,8 +144,7 @@ defmodule Fmcsa do
           companies = Fmcsa.fetch_company_names()
           count = Enum.count(companies)
 
-          [:springgreen, "Found " <> Integer.to_string(count) <> " companies"]
-          |> Bunt.puts()
+          Logger.info("Found " <> Integer.to_string(count) <> " companies")
 
           profiles =
             Enum.map(companies, fn x ->
@@ -154,31 +154,27 @@ defmodule Fmcsa do
 
           count = Enum.count(profiles)
 
-          [:springgreen, "Fetched " <> Integer.to_string(count) <> " profiles"]
-          |> Bunt.puts()
+          Logger.info("Fetched " <> Integer.to_string(count) <> " profiles")
 
         _ ->
           {_, response} = Fmcsa.fetch_companies_by_state(state)
 
           count = Enum.count(response)
 
-          [:springgreen, "Found " <> Integer.to_string(count) <> " companies"]
-          |> Bunt.puts()
+          Logger.info("Found " <> Integer.to_string(count) <> " companies")
 
           profiles =
             Enum.map(response, fn x ->
               {company, url} = x
 
-              [:springgreen, "Fetching " <> company <> " profile"]
-              |> Bunt.puts()
+              Logger.info("Fetching " <> company <> " profile")
 
               Fmcsa.fetch_company_profile(url)
             end)
 
           count = Enum.count(profiles)
 
-          [:springgreen, "Fetched " <> Integer.to_string(count) <> " profiles"]
-          |> Bunt.puts()
+          Logger.info("Fetched " <> Integer.to_string(count) <> " profiles")
       end
 
     {:ok, response}
