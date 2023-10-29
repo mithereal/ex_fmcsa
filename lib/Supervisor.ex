@@ -1,7 +1,6 @@
 defmodule Fmcsa.Company.Supervisor do
   use DynamicSupervisor
 
-  alias Game.Bot.Supervisor, as: SUPERVISOR
   alias Fmcsa.Company.Server, as: SERVER
 
   @name __MODULE__
